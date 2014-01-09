@@ -1,0 +1,43 @@
+Features List
+-------------
+
+#DATA#
+
+- Retrieve List of articles, with titles and intro text from server
+-DONE - add info
+
+- Retrieve Full article from server
+
+- Send articles to server
+
+#UI#
+
+- Arrange article previews in rows (as many as can fit) and continue off the side of the screen
+
+- see sides of previous and next previews on side of screen
+
+- scrolling down scrolls sideways (scrolling sideways still works)
+
+- custom scroll bar
+
+- snap scroll to see whole previews
+
+- click on preview to bring to center of screen and display whole text
+	-animation to center
+	-scrolling works normally here
+
+#Bookmarklet#
+
+- uploads content to server
+
+- get bookmarklet to user
+
+##Longer term##
+
+#User accounts#
+
+- have seperate article listings for different users
+
+- Log in with username and password
+
+- Share articles with friends

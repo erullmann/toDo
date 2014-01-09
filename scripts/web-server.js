@@ -4,9 +4,18 @@ var util = require('util'),
     http = require('http'),
     fs = require('fs'),
     url = require('url'),
-    events = require('events');
+    events = require('events'),
+    mongoose = require('mongoose');
+
+var articleSchema = new mongoose.Schema({
+  title : String,
+  body  : String
+});
+
+var Article = mongoose.model('Article', articleSchema);
 
 var DEFAULT_PORT = 8000;
+var APP_DIRECTORY = "../app"
 
 function main(argv) {
   new HttpServer({
@@ -41,6 +50,12 @@ function HttpServer(handlers) {
 HttpServer.prototype.start = function(port) {
   this.port = port;
   this.server.listen(port);
+  mongoose.connect('localhost', 'test');
+  //make test article
+  //Article.create({'title': 'testArticle', 'body': 'This is a test'}, function(err, small) {
+ //   if(err) return handleError(err);
+  //  //saved
+  //})
   util.puts('Http Server running at http://localhost:' + port + '/');
 };
 
@@ -87,19 +102,73 @@ StaticServlet.MimeMap = {
 
 StaticServlet.prototype.handleRequest = function(req, res) {
   var self = this;
-  var path = ('./' + req.url.pathname).replace('//','/').replace(/%(..)/g, function(match, hex){
+  var path = ('./' + APP_DIRECTORY + req.url.path).replace('//','/').replace(/%(..)/g, function(match, hex){
     return String.fromCharCode(parseInt(hex, 16));
   });
   var parts = path.split('/');
   if (parts[parts.length-1].charAt(0) === '.')
     return self.sendForbidden_(req, res, path);
+
+  //database listing request
+  if (parts[parts.length-2] === 'db')
+    return self.sendDB_(req, res, path);
+
+  //database post request
+  if(parts[parts.length-2] === 'post')
+    return self.acceptPost_(req, res, path);
+
   fs.stat(path, function(err, stat) {
     if (err)
       return self.sendMissing_(req, res, path);
+
     if (stat.isDirectory())
-      return self.sendDirectory_(req, res, path);
+      return self.sendRedirect_(req, res, path + "../index.html");
+
     return self.sendFile_(req, res, path);
   });
+}
+
+StaticServlet.prototype.acceptPost_ = function(req, res, path) {
+  //post is ../app/post/?title=title&body=body
+  var query = url.parse(path).query;
+
+  Article.create({'title': query.title, 'body': query.body}, function(err, small) {
+    if(err) return handleError(err);
+  })
+}
+
+StaticServlet.prototype.sendDB_ = function(req, res, path) {
+  //db path request is ..../app/db/?id=[all/uid]
+  var query = url.parse(path).query;
+  console.log(query);
+  console.log(url.parse(path));
+
+  if (query === 'id=all') {
+    Article.find({}, 'title body', function (err, article) {  
+      if (err) {return;};
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      });
+      res.write(JSON.stringify(article));
+      res.end();
+      util.puts('200 DB Request');
+    }); 
+  } else {
+    console.log(query.split('=')[1]);
+    Article.findById(query.split('=')[1], 'title body', function (err, article) {
+      if (err) {
+        console.log('failed');
+        return;
+      };
+      console.log(article);
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      });
+      res.write(JSON.stringify(article));
+      res.end();
+      util.puts('200 DB Request');
+    });
+  }
 }
 
 StaticServlet.prototype.sendError_ = function(req, res, error) {

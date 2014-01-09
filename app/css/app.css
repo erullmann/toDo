@@ -1,30 +1,80 @@
 /* app css stylesheet */
+body{
+  margin:0;
+  padding:0;
+  font-family: Georgia, serif;
+}
+
+.background {
+  background-image: url(../img/wallpaper-trains.jpg);
+  height:100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: -100;
+}
+
+.menu-border {
+  position:fixed;
+  display: inline-block;
+  width: 100%;
+  top:0;
+  padding-bottom: 1px;
+  background-color: transparent;
+  border-bottom: 1px solid #222222;
+  color: #dddddd;
+  margin-bottom: 20px;
+}
+
+.menu-background {
+  background-color: #222222;
+}
 
 .menu {
-  list-style: none;
-  border-bottom: 0.1em solid black;
-  margin-bottom: 2em;
-  padding: 0 0 0.5em;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0.2em;
+  margin-left: 120px;
+  color: #dddddd;
 }
 
-.menu:before {
-  content: "[";
+.alist {
+  margin-left: 120px;
+  white-space: nowrap;
+  top: 50px;
 }
 
-.menu:after {
-  content: "]";
+.apreview {
+  display: inline-block;
+  position: absolute;
+  background-color: #fefefe;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 350px;
+  height: 200px;
+  padding: 20px;
+  margin: 10px;
 }
 
-.menu > li {
-  display: inline;
+.apreview .header{
+  font-size: 1.5em;
+  text-transform: capitalize;
+
 }
 
-.menu > li:before {
-  content: "|";
-  padding-right: 0.3em;
+.apreview:hover{
+  background-color: #222222;
+  color: #ededed;
+  cursor: pointer;
 }
 
-.menu > li:nth-child(1):before {
-  content: "";
-  padding: 0;
+.aviewer{
+  background-color: #fefefe;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
 }
