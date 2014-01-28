@@ -6,5 +6,6 @@ angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 
   config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
     $routeProvider.when('/detail/:articleID', {templateUrl: 'partials/detail.html', controller: 'DetailCtrl'});
+    $routeProvider.when('/edit/:articleID', {templateUrl: 'partials/edit.html', controller: 'EditCtrl'});
     $routeProvider.otherwise({redirectTo: '/'});
   }]);

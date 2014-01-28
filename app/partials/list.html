@@ -1,7 +1,8 @@
 <ul>
-	<li ng-repeat="article in article_list">
-		<h2>{{article.name}}</h2>
-		<p>{{article.contents}}</p>
-		<a href="#/detail/{{article.id}}">Read full article</a>
+	<li ng-repeat="article in articleList">
+		<h2>{{article.title}}</h2>
+		<p>{{article.body}}</p>
+		<a href="#/detail/{{article._id}}">Read full article</a>
+		<a href="#/edit/{{article._id}}">Edit article</a>
 	</li>
 </ul>

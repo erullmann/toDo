@@ -4,38 +4,67 @@
 
 
 // Demonstrate how to register services
-// In this case it is a simple value service.
+// In articleService case it is a simple value service.
 angular.module('myApp.services', []).
-  factory('articleService', ['$http', function ($http) {
-  	var articleService = {};
+  factory('articleService', ['$http', '$q', function ($http, $q) {
+  	var articleService = this;
+
+    articleService.articles = [];
 
   	articleService.getArticleBlurbs = function () {
-  		var a = this.articles;
-  		for (var i = 0; i < a.length; i++){
-  			a[i].contents = a[i].contents.substring(0, 200);
-  		}
-  		return a;
+      var defered = $q.defer();
+
+  	  $http.get('db/?id=all').then(function(result){
+        articleService.articles = result.data;
+        defered.resolve(result.data);
+      });
+
+      return defered.promise; 
   	}
 
-  	articleService.addArticle = function (newName, newContents) {
-  		this.articles.push({name: newName, contents: newContents, id: this.articles.length});
+    articleService.createArticle = function(){
+      var defered = $q.defer();
+
+      console.log("Attempting to createArticle")
+
+      $http.get('db/?id=new').then(function(result){
+        articleService.articles = result.data;
+        defered.resolve(result.data);
+      });
+
+      return defered.promise;
+    }
+
+  	articleService.saveArticle = function(newTitle, newBody, id) {
+      var defered = $q.defer();
+
+      for(var i = 0; i < articleService.articles.length; i++){
+        if(articleService.articles[i]._id = id){
+  		    articleService.articles[i].title = newTitle;
+          articleService.articles[i].body = newBody;
+          $http.post('save/?id='+id+'&title='+newTitle+'&body='+newBody).then(function(result){
+            defered.resolve(result.data);
+          });
+        }
+      }
+
+      return defered.promise;
   	}
 
-  	articleService.getArticleByID = function (id) {
-  		var a = {};
-  		for (var i = 0; i < this.articles.length; i++){
-  			if (this.articles[i].id == id){
-  				a = this.articles[i];
-  				break;
-  			}
-  		}
-  		return a;
-  	}
+    articleService.removeArticle = function(id) {
+      articleService.articles.splice(id, 1);
+    }
 
-  	articleService.articles = [{name: "My First Article", contents: "This is my first article", id: 0},
-  					{name: "A study in scarlet", contents: "This is my secound article", id: 1},
-  					{name: "Comparing Apples to Oranges: an exercise in fruitility", contents: "what a joke", id: 2},
-  					{name: "AngularJS is great!", contents: "This is my last article!", id: 3}];
+  	articleService.getArticleByID = function(id) {
+  		var defered = $q.defer();
+
+      $http.get('db/?id='+id).then(function(result){
+        articleService.articles = result.data;
+        defered.resolve(result.data)
+      });
+
+      return defered.promise; 
+  	}
 
   	return articleService;
 

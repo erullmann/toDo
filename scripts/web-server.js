@@ -20,6 +20,7 @@ var APP_DIRECTORY = "../app"
 function main(argv) {
   new HttpServer({
     'GET': createServlet(StaticServlet),
+    'POST': createServlet(StaticServlet),
     'HEAD': createServlet(StaticServlet)
   }).start(Number(argv[2]) || DEFAULT_PORT);
 }
@@ -114,7 +115,7 @@ StaticServlet.prototype.handleRequest = function(req, res) {
     return self.sendDB_(req, res, path);
 
   //database post request
-  if(parts[parts.length-2] === 'post')
+  if(parts[parts.length-2] === 'save')
     return self.acceptPost_(req, res, path);
 
   fs.stat(path, function(err, stat) {
@@ -129,12 +130,26 @@ StaticServlet.prototype.handleRequest = function(req, res) {
 }
 
 StaticServlet.prototype.acceptPost_ = function(req, res, path) {
-  //post is ../app/post/?title=title&body=body
+  //post is ../app/save/?id=id&title=title&body=body
   var query = url.parse(path).query;
+  console.log(query);
+  console.log(url.parse(path));
+  console.log("saving article: " + query.id)
 
-  Article.create({'title': query.title, 'body': query.body}, function(err, small) {
-    if(err) return handleError(err);
-  })
+  Article.findByIdAndUpdate(query.id, {$set: {title: query.title, body: query.body}}, function (err, article) { 
+    response ="Saved" 
+    if (err) {
+      response = "Not Saved";
+      util.puts('Save request failed: ' + query.id);
+      return;
+    }
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    });
+    res.write(JSON.stringify(response));
+    res.end();
+    util.puts('Save Request: ' + response);
+  });
 }
 
 StaticServlet.prototype.sendDB_ = function(req, res, path) {
@@ -153,6 +168,21 @@ StaticServlet.prototype.sendDB_ = function(req, res, path) {
       res.end();
       util.puts('200 DB Request');
     }); 
+  } else if (query === 'id=new') {
+    Article.create({title: "", body: ""}, function(err, article) {
+      if(err) {
+        console.log("Article Creation failed");
+        return handleError(err);
+      } else {
+        console.log("Article Creation succeded");
+      };
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      });
+      res.write(JSON.stringify(article));
+      res.end();
+      util.puts('200 Creation Request');
+    });
   } else {
     console.log(query.split('=')[1]);
     Article.findById(query.split('=')[1], 'title body', function (err, article) {
